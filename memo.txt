@@ -1,0 +1,19 @@
+■Request
+GET /index.html HTTP/1.1
+HOST: locahost:9999
+Content-Type: text/html
+
+<BODY>
+....
+
+■Response
+HTTP/1.1 200 OK
+Server: MyGoServer
+Content-Type: text/html
+Content-Length: 100
+
+<html>
+<body>
+<h1> hello index page.</h1>
+</body>
+</html>

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bufio"
+	"bytes"
 	"fmt"
 	"io"
 	"net"
@@ -31,7 +33,43 @@ func accept(listener *net.TCPListener) {
 			panic(err)
 		}
 
-		go printRequest(conn)
+		go requestHandler(conn)
+	}
+}
+
+func requestHandler(conn *net.TCPConn) {
+	defer conn.Close()
+	reader := bufio.NewReader(conn)
+	var buffer bytes.Buffer
+	for {
+		ba, _, err := reader.ReadLine()
+		if err == io.EOF {
+			fmt.Println("EOF")
+			break
+		} else if err != nil {
+			panic(err)
+		}
+		//
+		if "" == string(ba) {
+			break
+		}
+		buffer.Write(ba)
+		buffer.Write([]byte("\n"))
+	}
+	data := buffer.String()
+	fmt.Printf("Data> %s", data)
+
+	response(conn)
+}
+
+func response(conn *net.TCPConn) {
+	body := `HTTP/1.1 200 OK
+		Content-Type: text/plain
+
+		request success !!`
+	_, err := conn.Write([]byte(body))
+	if err != nil {
+		panic(err)
 	}
 }
 
