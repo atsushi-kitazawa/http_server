@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net"
 )
 
@@ -63,16 +64,24 @@ func requestHandler(conn *net.TCPConn) {
 }
 
 func response(conn *net.TCPConn) {
-	body := `HTTP/1.1 200 OK
-		Content-Type: text/plain
-
-		request success !!`
-	_, err := conn.Write([]byte(body))
+	var body bytes.Buffer
+	body.WriteString("HTTP/1.1 200 OK\n")
+	body.WriteString("Content-Type: text/html\n")
+	body.WriteString("\n")
+	body.WriteString(readRequestFile())
+	_, err := conn.Write(body.Bytes())
 	if err != nil {
 		panic(err)
 	}
 }
 
+func readRequestFile() string {
+	data, err := ioutil.ReadFile("../../index.html")
+	if err != nil {
+		panic(err)
+	}
+	return string(data)
+}
 func printRequest(conn *net.TCPConn) {
 	defer conn.Close()
 	buf := make([]byte, 1024)
