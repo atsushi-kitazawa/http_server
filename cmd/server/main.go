@@ -7,7 +7,16 @@ import (
 	"io"
 	"io/ioutil"
 	"net"
+	"strings"
 )
+
+type Request struct {
+	method   string
+	resource string
+	version  string
+	headers  map[string]string
+	body     string
+}
 
 func main() {
 	tcpAddr, err := net.ResolveTCPAddr("tcp", "127.0.0.1:9999")
@@ -38,6 +47,32 @@ func accept(listener *net.TCPListener) {
 	}
 }
 
+func parseRequest(data bytes.Buffer) {
+	datas := strings.Split(data.String(), "\n")
+
+	var request Request
+	// parse start line
+	startLine := strings.Split(datas[0], " ")
+	request.method = startLine[0]
+	request.resource = startLine[1]
+	request.version = startLine[2]
+
+	// parse header
+	tmp := make(map[string]string)
+	for i := 1; i < len(datas)-1; i++ {
+		h := strings.Split(datas[i], ":")
+		tmp[h[0]] = h[1]
+	}
+	request.headers = tmp
+
+	// parse body
+
+	//fmt.Println(request.method)
+	//fmt.Println(request.resource)
+	//fmt.Println(request.version)
+	//fmt.Println(request.headers)
+}
+
 func requestHandler(conn *net.TCPConn) {
 	defer conn.Close()
 	reader := bufio.NewReader(conn)
@@ -57,8 +92,9 @@ func requestHandler(conn *net.TCPConn) {
 		buffer.Write(ba)
 		buffer.Write([]byte("\n"))
 	}
-	data := buffer.String()
-	fmt.Printf("Data> %s", data)
+	//data := buffer.String()
+	//fmt.Printf("Data> %s", data)
+	parseRequest(buffer)
 
 	response(conn)
 }
