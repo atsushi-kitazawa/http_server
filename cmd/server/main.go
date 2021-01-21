@@ -47,7 +47,7 @@ func accept(listener *net.TCPListener) {
 	}
 }
 
-func parseRequest(data bytes.Buffer) {
+func parseRequest(data bytes.Buffer) Request {
 	datas := strings.Split(data.String(), "\n")
 
 	var request Request
@@ -71,6 +71,8 @@ func parseRequest(data bytes.Buffer) {
 	//fmt.Println(request.resource)
 	//fmt.Println(request.version)
 	//fmt.Println(request.headers)
+
+	return request
 }
 
 func requestHandler(conn *net.TCPConn) {
@@ -94,29 +96,37 @@ func requestHandler(conn *net.TCPConn) {
 	}
 	//data := buffer.String()
 	//fmt.Printf("Data> %s", data)
-	parseRequest(buffer)
+	req := parseRequest(buffer)
 
-	response(conn)
+	response(conn, req)
 }
 
-func response(conn *net.TCPConn) {
+func response(conn *net.TCPConn, req Request) {
 	var body bytes.Buffer
 	body.WriteString("HTTP/1.1 200 OK\n")
 	body.WriteString("Content-Type: text/html\n")
 	body.WriteString("\n")
-	body.WriteString(readRequestFile())
+	body.WriteString(readRequestFile(req))
 	_, err := conn.Write(body.Bytes())
 	if err != nil {
 		panic(err)
 	}
 }
 
-func readRequestFile() string {
-	data, err := ioutil.ReadFile("../../index.html")
-	if err != nil {
-		panic(err)
+func readRequestFile(req Request) string {
+	if req.resource != "/" {
+		data, err := ioutil.ReadFile("../../" + req.resource)
+		if err != nil {
+			panic(err)
+		}
+		return string(data)
+	} else {
+		data, err := ioutil.ReadFile("../../index.html")
+		if err != nil {
+			panic(err)
+		}
+		return string(data)
 	}
-	return string(data)
 }
 func printRequest(conn *net.TCPConn) {
 	defer conn.Close()
