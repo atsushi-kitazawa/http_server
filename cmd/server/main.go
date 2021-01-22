@@ -1,22 +1,12 @@
 package main
 
 import (
-	"bufio"
-	"bytes"
 	"fmt"
+	"github.com/atsushi-kitazawa/http_server/cmd/server/request"
+	"github.com/atsushi-kitazawa/http_server/cmd/server/response"
 	"io"
-	"io/ioutil"
 	"net"
-	"strings"
 )
-
-type Request struct {
-	method   string
-	resource string
-	version  string
-	headers  map[string]string
-	body     string
-}
 
 func main() {
 	tcpAddr, err := net.ResolveTCPAddr("tcp", "127.0.0.1:9999")
@@ -43,91 +33,16 @@ func accept(listener *net.TCPListener) {
 			panic(err)
 		}
 
-		go requestHandler(conn)
+		go handler(conn)
 	}
 }
 
-func parseRequest(data bytes.Buffer) Request {
-	datas := strings.Split(data.String(), "\n")
-
-	var request Request
-	// parse start line
-	startLine := strings.Split(datas[0], " ")
-	request.method = startLine[0]
-	request.resource = startLine[1]
-	request.version = startLine[2]
-
-	// parse header
-	tmp := make(map[string]string)
-	for i := 1; i < len(datas)-1; i++ {
-		h := strings.Split(datas[i], ":")
-		tmp[h[0]] = h[1]
-	}
-	request.headers = tmp
-
-	// parse body
-
-	//fmt.Println(request.method)
-	//fmt.Println(request.resource)
-	//fmt.Println(request.version)
-	//fmt.Println(request.headers)
-
-	return request
-}
-
-func requestHandler(conn *net.TCPConn) {
+func handler(conn *net.TCPConn) {
 	defer conn.Close()
-	reader := bufio.NewReader(conn)
-	var buffer bytes.Buffer
-	for {
-		ba, _, err := reader.ReadLine()
-		if err == io.EOF {
-			fmt.Println("EOF")
-			break
-		} else if err != nil {
-			panic(err)
-		}
-		//
-		if "" == string(ba) {
-			break
-		}
-		buffer.Write(ba)
-		buffer.Write([]byte("\n"))
-	}
-	//data := buffer.String()
-	//fmt.Printf("Data> %s", data)
-	req := parseRequest(buffer)
-
-	response(conn, req)
+	req := request.RequestHandler(conn)
+	response.Response(conn, req)
 }
 
-func response(conn *net.TCPConn, req Request) {
-	var body bytes.Buffer
-	body.WriteString("HTTP/1.1 200 OK\n")
-	body.WriteString("Content-Type: text/html\n")
-	body.WriteString("\n")
-	body.WriteString(readRequestFile(req))
-	_, err := conn.Write(body.Bytes())
-	if err != nil {
-		panic(err)
-	}
-}
-
-func readRequestFile(req Request) string {
-	if req.resource != "/" {
-		data, err := ioutil.ReadFile("../../" + req.resource)
-		if err != nil {
-			panic(err)
-		}
-		return string(data)
-	} else {
-		data, err := ioutil.ReadFile("../../index.html")
-		if err != nil {
-			panic(err)
-		}
-		return string(data)
-	}
-}
 func printRequest(conn *net.TCPConn) {
 	defer conn.Close()
 	buf := make([]byte, 1024)
