@@ -2,11 +2,20 @@ package response
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/atsushi-kitazawa/http_server/cmd/server/request"
 	"io/ioutil"
 	"net"
-	"strings"
+	"os"
 )
+
+var indexPage = "/index.html"
+var rootDir = getRootDir()
+
+func getRootDir() string {
+	d, _ := os.Getwd()
+	return d
+}
 
 func Response(conn *net.TCPConn, req request.Request) {
 	var body bytes.Buffer
@@ -22,13 +31,14 @@ func Response(conn *net.TCPConn, req request.Request) {
 
 func readResource(req request.Request) string {
 	if req.Resource != "/" {
-		data, err := ioutil.ReadFile(strings.Trim(req.Resource, "/"))
+		data, err := ioutil.ReadFile(rootDir + req.Resource)
 		if err != nil {
+			fmt.Println(err)
 			return notFoundResponse()
 		}
 		return string(data)
 	} else {
-		data, err := ioutil.ReadFile("index.html")
+		data, err := ioutil.ReadFile(rootDir + indexPage)
 		if err != nil {
 			panic(err)
 		}
