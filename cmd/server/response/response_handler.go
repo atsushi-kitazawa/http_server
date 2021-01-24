@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-var indexPage = "/index.html"
+var indexPage = "/pages/index.html"
 var rootDir = getRootDir()
 
 func getRootDir() string {
