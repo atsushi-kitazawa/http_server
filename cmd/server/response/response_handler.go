@@ -48,8 +48,8 @@ func readResource(req request.Request) string {
 
 func notFoundResponse() string {
 	var body bytes.Buffer
-	body.WriteString("HTTP/1.1 404 Not Found")
-	body.WriteString("Content-Type: text/html")
+	body.WriteString("HTTP/1.1 404 Not Found\n")
+	body.WriteString("Content-Type: text/html\n")
 	body.WriteString("\n")
 	body.WriteString("<html><body>page not found.</body></html>")
 	return body.String()
