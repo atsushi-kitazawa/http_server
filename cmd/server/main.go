@@ -2,19 +2,22 @@ package main
 
 import (
 	"fmt"
+	"io"
+	"net"
+
 	"github.com/atsushi-kitazawa/http_server/cmd/server/request"
 	"github.com/atsushi-kitazawa/http_server/cmd/server/response"
 	"github.com/atsushi-kitazawa/http_server/configs"
-	"io"
-	"net"
 )
 
 func main() {
-	var settings configs.Settings
-	configs.Load(&settings)
-	//fmt.Println("ip>", settings.Ip)
-	//fmt.Println("port>", settings.Port)
-	tcpAddr, err := net.ResolveTCPAddr("tcp", settings.Ip + ":" + settings.Port)
+	// load configuration file
+	var conf configs.Configuration
+	configs.Load(&conf)
+	//fmt.Println("ip>", conf.Ip)
+	//fmt.Println("port>", conf.Port)
+
+	tcpAddr, err := net.ResolveTCPAddr("tcp", conf.Ip + ":" + conf.Port)
 	if err != nil {
 		panic(err)
 	}
@@ -24,7 +27,7 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("Server running at %s:%s\n", settings.Ip, settings.Port)
+	fmt.Printf("Server running at %s:%s\n", conf.Ip, conf.Port)
 
 	accept(listener)
 }
