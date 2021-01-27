@@ -4,12 +4,17 @@ import (
 	"fmt"
 	"github.com/atsushi-kitazawa/http_server/cmd/server/request"
 	"github.com/atsushi-kitazawa/http_server/cmd/server/response"
+	"github.com/atsushi-kitazawa/http_server/configs"
 	"io"
 	"net"
 )
 
 func main() {
-	tcpAddr, err := net.ResolveTCPAddr("tcp", "127.0.0.1:9999")
+	var settings configs.Settings
+	configs.Load(&settings)
+	//fmt.Println("ip>", settings.Ip)
+	//fmt.Println("port>", settings.Port)
+	tcpAddr, err := net.ResolveTCPAddr("tcp", settings.Ip + ":" + settings.Port)
 	if err != nil {
 		panic(err)
 	}
@@ -19,7 +24,7 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println("Server running at localhost:9999")
+	fmt.Printf("Server running at %s:%s\n", settings.Ip, settings.Port)
 
 	accept(listener)
 }
