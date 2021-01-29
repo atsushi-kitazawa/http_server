@@ -9,7 +9,10 @@ import (
 	"github.com/atsushi-kitazawa/http_server/cmd/server/enviroment"
 )
 
+var _ = fmt.Println // For debugging;
+
 var currentDir = getCurrentDir()
+var conf = load()
 
 func getCurrentDir() string {
 	d, _ := os.Getwd()
@@ -27,8 +30,9 @@ type Authentication struct {
     Location string `yaml:"location"`
 }
 
-func Load(conf *Configuration) {
-    fmt.Println(currentDir)
+func load() *Configuration {
+    //fmt.Println(currentDir)
+    var conf *Configuration
     buf, err := ioutil.ReadFile(enviroment.GetEnv().ConfFile)
     if err != nil {
 	panic(err)
@@ -38,6 +42,10 @@ func Load(conf *Configuration) {
     if err != nil {
 	panic(err)
     }
-    //fmt.Println("ip>", conf.Ip)
-    //fmt.Println("port>", conf.Port)
+
+    return conf
+}
+
+func GetConf() *Configuration {
+    return conf
 }

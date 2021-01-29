@@ -29,6 +29,18 @@ func Response(conn *net.TCPConn, req request.Request) {
 	}
 }
 
+func ResponseAuthError(conn *net.TCPConn) {
+    var body bytes.Buffer
+    body.WriteString("HTTP/1.1 401 Unauthorized\n")
+    body.WriteString("Content-Type: text/html\n")
+    body.WriteString("\n")
+    body.WriteString("<html><body>Unauthorized</body></html>")
+    _, err := conn.Write(body.Bytes())
+    if err != nil {
+	panic(err)
+    }
+}
+
 func readResource(req request.Request) string {
 	if req.Resource != "/" {
 		data, err := ioutil.ReadFile(rootDir + req.Resource)
