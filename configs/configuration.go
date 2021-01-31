@@ -6,18 +6,17 @@ import (
 	"io/ioutil"
 
 	"gopkg.in/yaml.v2"
-	"github.com/atsushi-kitazawa/http_server/cmd/server/enviroment"
 )
 
 var _ = fmt.Println // For debugging;
+var _ = os.Args // For debugging;
 
-var currentDir = getCurrentDir()
-var conf = load()
+//var currentDir = getCurrentDir()
+//func getCurrentDir() string {
+//	d, _ := os.Getwd()
+//	return d
+//}
 
-func getCurrentDir() string {
-	d, _ := os.Getwd()
-	return d
-}
 type Configuration struct {
     Ip string `yaml:"ip"`
     Port string `yaml:"port"`
@@ -30,10 +29,10 @@ type Authentication struct {
     Location string `yaml:"location"`
 }
 
-func load() *Configuration {
+func Load(confFilePath string) *Configuration {
     //fmt.Println(currentDir)
     var conf *Configuration
-    buf, err := ioutil.ReadFile(enviroment.GetEnv().ConfFile)
+    buf, err := ioutil.ReadFile(confFilePath)
     if err != nil {
 	panic(err)
     }
@@ -43,9 +42,5 @@ func load() *Configuration {
 	panic(err)
     }
 
-    return conf
-}
-
-func GetConf() *Configuration {
     return conf
 }

@@ -1,19 +1,25 @@
 package enviroment
 
 import (
-    "flag"
+	"flag"
+	"fmt"
 )
 
-var env *Enviroment = new(Enviroment)
+var _ = fmt.Println //For debugging.
 
-type Enviroment struct {
+var args *Args = new(Args)
+
+type Args struct {
     ConfFile string
 }
 
 func init() {
-    flag.StringVar(&env.ConfFile, "conf", "configs/configuration.yaml", "configuration file")
+    fmt.Println("args init() call")
+    flag.StringVar(&args.ConfFile, "conf", "configs/configuration.yaml", "configuration file")
+    flag.Parse()
 }
 
-func GetEnv() *Enviroment {
-    return env
+func GetArgs() *Args {
+    fmt.Println("enviroment GetArgs() call")
+    return args
 }

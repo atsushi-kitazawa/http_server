@@ -1,16 +1,12 @@
 package configs
 
 import (
-    "testing"
-    "flag"
+	"testing"
 )
 
 func TestLoad(t *testing.T) {
-    flag.CommandLine.Set("conf", "configuration.yaml")
-    flag.Parse()
-
-    var conf Configuration
-    Load(&conf)
+    var conf *Configuration
+    conf = Load("configuration.yaml")
 
     t.Log(conf.Ip)
     t.Log(conf.Port)

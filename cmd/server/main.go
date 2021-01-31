@@ -4,16 +4,18 @@ import (
 	"fmt"
 	"io"
 	"net"
+
 	//"strings"
 	//"bytes"
 
+	"github.com/atsushi-kitazawa/http_server/cmd/server/auth"
+	"github.com/atsushi-kitazawa/http_server/cmd/server/enviroment"
 	"github.com/atsushi-kitazawa/http_server/cmd/server/request"
 	"github.com/atsushi-kitazawa/http_server/cmd/server/response"
 	"github.com/atsushi-kitazawa/http_server/configs"
-	"github.com/atsushi-kitazawa/http_server/cmd/server/auth"
 )
 
-var conf  = configs.GetConf()
+var conf *configs.Configuration
 
 func init() {
     // load configuration file
@@ -21,6 +23,13 @@ func init() {
 }
 
 func main() {
+	// parse arguments
+	args := enviroment.GetArgs()
+
+	// load configuration file
+	conf = configs.Load(args.ConfFile)
+
+	// main
 	tcpAddr, err := net.ResolveTCPAddr("tcp", conf.Ip + ":" + conf.Port)
 	if err != nil {
 		panic(err)
