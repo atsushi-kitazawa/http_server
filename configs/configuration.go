@@ -11,6 +11,8 @@ import (
 var _ = fmt.Println // For debugging;
 var _ = os.Args // For debugging;
 
+var Conf *Configuration = new(Configuration)
+
 //var currentDir = getCurrentDir()
 //func getCurrentDir() string {
 //	d, _ := os.Getwd()
@@ -31,16 +33,17 @@ type Authentication struct {
 
 func Load(confFilePath string) *Configuration {
     //fmt.Println(currentDir)
-    var conf *Configuration
+    var c *Configuration
     buf, err := ioutil.ReadFile(confFilePath)
     if err != nil {
 	panic(err)
     }
 
-    err = yaml.UnmarshalStrict(buf, &conf)
+    err = yaml.UnmarshalStrict(buf, &c)
     if err != nil {
 	panic(err)
     }
 
-    return conf
+   Conf = c
+    return Conf
 }

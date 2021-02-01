@@ -3,5 +3,5 @@ port: 9999
 
 auth:
     type: Basic
-    file: configs/.htpasswd
+    file: /Users/atsushi/workspace/golang/src/github.com/atsushi-kitazawa/http_server/cmd/server/auth/user_db
     location: /pages/auth_dir

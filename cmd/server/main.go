@@ -17,17 +17,15 @@ import (
 
 var conf *configs.Configuration
 
-func init() {
-    // load configuration file
-    // configs.Load(&conf)
-}
-
 func main() {
 	// parse arguments
 	args := enviroment.GetArgs()
 
 	// load configuration file
 	conf = configs.Load(args.ConfFile)
+
+	// init auth module
+	auth.InitAuthModule()
 
 	// main
 	tcpAddr, err := net.ResolveTCPAddr("tcp", conf.Ip + ":" + conf.Port)
@@ -62,12 +60,12 @@ func handler(conn *net.TCPConn) {
 	defer conn.Close()
 	req := request.RequestHandler(conn)
 
-	if !auth.IsAuthRequireResource(&req, conf) {
+	if !auth.IsAuthRequireResource(&req) {
 	    response.Response(conn, req)
 	    return
 	}
 
-	if !auth.CheckAuth(&req, conf) {
+	if !auth.CheckAuth(&req) {
 	   response.ResponseAuthError(conn)
 	   return
 	}

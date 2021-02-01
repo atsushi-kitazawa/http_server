@@ -16,6 +16,6 @@ echo "GET [http://localhost:9999/pages/auth_dir/hello.html]"
 curl -u test:password -i -s http://localhost:9999/pages/auth_dir/hello.html
 echo
 
-echo "GET [http://localhost:9999/pages/auth_dir/hello.html]"
+echo "GET [http://localhost:9999/pages/auth_dir/hello.html](invalid password)"
 curl -u test:invalidpassword -i -s http://localhost:9999/pages/auth_dir/hello.html
 echo
