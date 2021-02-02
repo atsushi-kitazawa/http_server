@@ -36,4 +36,8 @@ func TestDetermineContentType(t *testing.T) {
     req.Resource = "hello.js"
     result = DetermineContentType(req)
     assert.Equal(t, "text/javascript", result)
+
+    req.Resource = "/"
+    result = DetermineContentType(req)
+    assert.Equal(t, "text/html", result)
 }
