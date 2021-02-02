@@ -3,10 +3,12 @@ package response
 import (
 	"bytes"
 	"fmt"
-	"github.com/atsushi-kitazawa/http_server/cmd/server/request"
 	"io/ioutil"
 	"net"
 	"os"
+
+	"github.com/atsushi-kitazawa/http_server/cmd/server/header"
+	"github.com/atsushi-kitazawa/http_server/cmd/server/request"
 )
 
 var indexPage = "/pages/index.html"
@@ -20,7 +22,7 @@ func getRootDir() string {
 func Response(conn *net.TCPConn, req request.Request) {
 	var body bytes.Buffer
 	body.WriteString("HTTP/1.1 200 OK\n")
-	body.WriteString("Content-Type: text/html\n")
+	body.WriteString("Content-Type: " + header.DetermineContentType(req) + "\n")
 	body.WriteString("\n")
 	body.WriteString(readResource(req))
 	_, err := conn.Write(body.Bytes())
