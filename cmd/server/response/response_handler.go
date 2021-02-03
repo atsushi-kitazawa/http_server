@@ -2,6 +2,7 @@ package response
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net"
@@ -21,26 +22,42 @@ func getRootDir() string {
 }
 
 func Response(conn *net.TCPConn, req request.Request) {
+	body, err := readResource(req)
+
+	// 404 Not Found Response.
+	if err != nil {
+	    var res bytes.Buffer
+	    res.WriteString(notFoundResponse())
+	    _, err := conn.Write(res.Bytes())
+	    if err != nil {
+		panic(err)
+	    }
+	    return
+	}
+
+	// 200 OK Response(download)
 	if strings.Contains(req.Resource, "/download") {
-	    var body bytes.Buffer
-	    body.WriteString("HTTP/1.1 200 OK\n")
-	    body.WriteString("Content-Disposition: attachment;filename=\"" + "file" + "\"\n")
-	    body.WriteString("\n")
-	    body.WriteString(readResource(req))
-	    _, err := conn.Write(body.Bytes())
+	    var res bytes.Buffer
+	    res.WriteString("HTTP/1.1 200 OK\n")
+	    res.WriteString("Content-Disposition: attachment;filename=\"" + getFileName(req) + "\"\n")
+	    res.WriteString("\n")
+	    res.WriteString(body)
+	    _, err := conn.Write(res.Bytes())
 	    if err != nil {
 		panic(err)
 	    }
-	} else {
-	    var body bytes.Buffer
-	    body.WriteString("HTTP/1.1 200 OK\n")
-	    body.WriteString("Content-Type: " + header.DetermineContentType(req) + "\n")
-	    body.WriteString("\n")
-	    body.WriteString(readResource(req))
-	    _, err := conn.Write(body.Bytes())
-	    if err != nil {
-		panic(err)
-	    }
+	    return
+	}
+
+	// 200 OK Response
+	var res bytes.Buffer
+	res.WriteString("HTTP/1.1 200 OK\n")
+	res.WriteString("Content-Type: " + header.DetermineContentType(req) + "\n")
+	res.WriteString("\n")
+	res.WriteString(body)
+	_, err = conn.Write(res.Bytes())
+	if err != nil {
+	    panic(err)
 	}
 }
 
@@ -56,21 +73,27 @@ func ResponseAuthError(conn *net.TCPConn) {
     }
 }
 
-func readResource(req request.Request) string {
+func readResource(req request.Request) (string, error) {
 	if req.Resource != "/" {
 		data, err := ioutil.ReadFile(rootDir + req.Resource)
 		if err != nil {
 			fmt.Println(err)
-			return notFoundResponse()
+			return "", errors.New("Not Found")
 		}
-		return string(data)
+		return string(data), nil
 	} else {
 		data, err := ioutil.ReadFile(rootDir + indexPage)
 		if err != nil {
 			panic(err)
 		}
-		return string(data)
+		return string(data), nil
 	}
+}
+
+func getFileName(req request.Request) string {
+    resource := req.Resource
+    index := strings.LastIndex(resource, "/")
+    return resource[index+1:]
 }
 
 func notFoundResponse() string {
