@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net"
 	"os"
+	"strings"
 
 	"github.com/atsushi-kitazawa/http_server/cmd/server/header"
 	"github.com/atsushi-kitazawa/http_server/cmd/server/request"
@@ -20,14 +21,26 @@ func getRootDir() string {
 }
 
 func Response(conn *net.TCPConn, req request.Request) {
-	var body bytes.Buffer
-	body.WriteString("HTTP/1.1 200 OK\n")
-	body.WriteString("Content-Type: " + header.DetermineContentType(req) + "\n")
-	body.WriteString("\n")
-	body.WriteString(readResource(req))
-	_, err := conn.Write(body.Bytes())
-	if err != nil {
+	if strings.Contains(req.Resource, "/download") {
+	    var body bytes.Buffer
+	    body.WriteString("HTTP/1.1 200 OK\n")
+	    body.WriteString("Content-Disposition: attachment;filename=\"" + "file" + "\"\n")
+	    body.WriteString("\n")
+	    body.WriteString(readResource(req))
+	    _, err := conn.Write(body.Bytes())
+	    if err != nil {
 		panic(err)
+	    }
+	} else {
+	    var body bytes.Buffer
+	    body.WriteString("HTTP/1.1 200 OK\n")
+	    body.WriteString("Content-Type: " + header.DetermineContentType(req) + "\n")
+	    body.WriteString("\n")
+	    body.WriteString(readResource(req))
+	    _, err := conn.Write(body.Bytes())
+	    if err != nil {
+		panic(err)
+	    }
 	}
 }
 
