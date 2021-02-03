@@ -22,6 +22,7 @@ func getRootDir() string {
 }
 
 func Response(conn *net.TCPConn, req request.Request) {
+	// first, read request resource for decide status code
 	body, err := readResource(req)
 
 	// 404 Not Found Response.
@@ -35,11 +36,14 @@ func Response(conn *net.TCPConn, req request.Request) {
 	    return
 	}
 
-	// 200 OK Response(download)
-	if strings.Contains(req.Resource, "/download") {
+	// 200 OK Response
+	contentType := header.DetermineContentType(req)
+	fmt.Println(contentType)
+	if contentType == "" {
 	    var res bytes.Buffer
 	    res.WriteString("HTTP/1.1 200 OK\n")
 	    res.WriteString("Content-Disposition: attachment;filename=\"" + getFileName(req) + "\"\n")
+	    //res.WriteString("application/octet-stream\n")
 	    res.WriteString("\n")
 	    res.WriteString(body)
 	    _, err := conn.Write(res.Bytes())
@@ -49,7 +53,6 @@ func Response(conn *net.TCPConn, req request.Request) {
 	    return
 	}
 
-	// 200 OK Response
 	var res bytes.Buffer
 	res.WriteString("HTTP/1.1 200 OK\n")
 	res.WriteString("Content-Type: " + header.DetermineContentType(req) + "\n")

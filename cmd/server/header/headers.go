@@ -18,9 +18,13 @@ func loadContentType() map[string]string {
 }
 
 func DetermineContentType(req request.Request) string {
+    if req.Resource == "/" {
+	return "text/html"
+    }
+
     periodPos := strings.LastIndex(req.Resource, ".")
     if periodPos == -1 {
-	return "text/html"
+	return ""
     }
     extension := req.Resource[periodPos:]
     return content_type[extension]
