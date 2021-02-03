@@ -40,4 +40,8 @@ func TestDetermineContentType(t *testing.T) {
     req.Resource = "/"
     result = DetermineContentType(req)
     assert.Equal(t, "text/html", result)
+
+    req.Resource = "hello.hoge"
+    result = DetermineContentType(req)
+    assert.Equal(t, "", result)
 }
