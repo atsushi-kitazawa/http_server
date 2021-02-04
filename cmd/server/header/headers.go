@@ -29,3 +29,11 @@ func DetermineContentType(req request.Request) string {
     extension := req.Resource[periodPos:]
     return content_type[extension]
 }
+
+func IsMultipartFormData(headers map[string]string) bool {
+    contentType := headers["Content-Type"]
+    if strings.Contains(contentType, "multipart/form-data") {
+	return true
+    }
+    return false
+}

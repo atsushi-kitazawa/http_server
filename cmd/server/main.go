@@ -10,6 +10,7 @@ import (
 
 	"github.com/atsushi-kitazawa/http_server/cmd/server/auth"
 	"github.com/atsushi-kitazawa/http_server/cmd/server/enviroment"
+	"github.com/atsushi-kitazawa/http_server/cmd/server/header"
 	"github.com/atsushi-kitazawa/http_server/cmd/server/request"
 	"github.com/atsushi-kitazawa/http_server/cmd/server/response"
 	"github.com/atsushi-kitazawa/http_server/configs"
@@ -60,8 +61,16 @@ func handler(conn *net.TCPConn) {
 	defer conn.Close()
 	req := request.RequestHandler(conn)
 
+	//fmt.Println("debug>", req)
+
 	if !auth.IsAuthRequireResource(&req) {
-	    response.Response(conn, req)
+	    if header.IsMultipartFormData(req.Headers) {
+		fmt.Println("debug request is multipart")
+		response.ResponseUpload(conn, req)
+	    } else {
+		fmt.Println("debug request is not multipart")
+		response.Response(conn, req)
+	    }
 	    return
 	}
 

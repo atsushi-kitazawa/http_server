@@ -45,3 +45,16 @@ func TestDetermineContentType(t *testing.T) {
     result = DetermineContentType(req)
     assert.Equal(t, "", result)
 }
+
+func TestIsMultipartFormData(t *testing.T) {
+    fmt.Println("TestIsMultipartFormData")
+
+    var req request.Request
+    req.Headers = map[string]string{"Content-Type" : "multipart/form-data; boundary=ABC"}
+    result := IsMultipartFormData(req.Headers)
+    assert.Equal(t, true, result)
+
+    req.Headers = map[string]string{"Content-Type" : "text/html"}
+    result = IsMultipartFormData(req.Headers)
+    assert.Equal(t, false, result)
+}
